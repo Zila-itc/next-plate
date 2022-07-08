@@ -1,10 +1,10 @@
 const path = require('path');
 const withPlugins = require('next-compose-plugins');
 const withImages = require('next-images');
-const withPWA = require('next-pwa');
-const runtimeCaching = require('next-pwa/cache');
+// const withPWA = require('next-pwa');
+// const runtimeCaching = require('next-pwa/cache');
 
-const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = process.env.NODE_ENV === 'production';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -49,21 +49,21 @@ module.exports = withPlugins(
 				},
 			},
 		],
-		[
-			withPWA,
-			{
-				pwa: {
-					disable: !isProduction,
-					dest: 'public',
-					register: true,
-					skipWaiting: true,
-					runtimeCaching,
+		// [
+		// 	withPWA,
+		// 	{
+		// 		pwa: {
+		// 			disable: !isProduction,
+		// 			dest: 'public',
+		// 			register: true,
+		// 			skipWaiting: true,
+		// 			runtimeCaching,
 
-					// Prevent Bad Pre-Caching Error:
-					// buildExcludes: [/middleware-manifest\.json$/],
-				},
-			},
-		],
+		// 			// Prevent Bad Pre-Caching Error:
+		// 			// buildExcludes: [/middleware-manifest\.json$/],
+		// 		},
+		// 	},
+		// ],
 	],
 	nextConfig
 );

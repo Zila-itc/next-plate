@@ -1,49 +1,26 @@
+import { GetStaticProps } from 'next';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
-import { NextSeo } from 'next-seo';
+import { useUpdateStore } from '../hooks/useUpdateStore';
+import { usersServices } from '../services/users';
+import { useUserSelector } from '../stores/userStore/userSelector';
 
-// --- Chakra-UI ---
-import { Center } from '@chakra-ui/react';
+const HomeTemplate = dynamic(() => import('../template/home'));
 
-// --- Components ---
-const SearchComponent = dynamic(() => import('@components/Search'));
+export default function HomePage(props: { userSsrData: [] }) {
+	// after server get data will set to global store
+	const { setUser, users } = useUserSelector();
+	useUpdateStore({ setStoreFn: setUser, asyncData: users });
 
-// --- Motion Components ---
-import MotionContainer from '@components/Motion/MotionContainer';
-
-// -- Animations --
-import { slide } from '@animations';
-
-export default function HomePage() {
-	const router = useRouter();
-
-	const handleSearchLogin = (login?: string) => {
-		login &&
-			router.push({
-				pathname: '/user/[login]',
-				query: { login },
-			});
-	};
-
-	return (
-		<>
-			<NextSeo
-				title="Search"
-				description="🦸‍♀️ A super template for Next.js with a pack of incredible tools"
-			/>
-
-			<MotionContainer
-				w="full"
-				h="100vh"
-				initial="initial"
-				animate="animate"
-				exit="exit"
-				variants={slide}
-			>
-				<Center w="full" h="full">
-					<SearchComponent handleSearchLogin={handleSearchLogin} />
-				</Center>
-			</MotionContainer>
-		</>
-	);
+	return <HomeTemplate />;
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+	//only some information related for SEO will fetching here
+	const userSsrData = await usersServices();
+
+	return {
+		props: {
+			userSsrData,
+		},
+	};
+};

@@ -1,35 +1,41 @@
-import { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
-
-// --- React Query ---
-import { QueryClient, QueryClientProvider } from 'react-query';
-
-// --- Chakra-UI ---
-import { ChakraProvider } from '@chakra-ui/react';
-import theme from '@styles/theme';
-
-// --- Analysis (optional) ---
-// import '@scripts/wdyr';
+import { AppProps } from 'next/app';
+import NProgress from 'nprogress'; //nprogress module
+import 'nprogress/nprogress.css'; //s
+import 'tailwindcss/tailwind.css';
 
 // --- Configs ---
 import SEO from '@root/next-seo.config';
+import { useEffect, useState } from 'react';
+import { AppLayout } from '../components/layout';
+import { sleepFn } from '../utils/async';
 
-// --- Components ---
-import MainContentComponent from '@components/MainContent';
+export default function _app({ Component, pageProps, router }: AppProps) {
+	const [loading, setLoading] = useState(true);
+	//Binding events.
+	router.events?.on('routeChangeStart', () => NProgress.start());
+	router.events?.on('routeChangeComplete', () => NProgress.done());
+	router.events?.on('routeChangeError', () => NProgress.done());
 
-const queryClient = new QueryClient();
+	// after ssr finish fetching data will show loading
+	useEffect(() => {
+		if (router?.isReady) {
+			//delay for smooth loading
+			sleepFn(500).then(() => {
+				setLoading(false);
+			});
+		} else {
+			setLoading(false);
+		}
+	}, [router?.isReady]);
 
-export default function _app({ Component, pageProps, router: { route } }: AppProps) {
 	return (
-		<>
-			<DefaultSeo {...SEO} />
-			<QueryClientProvider client={queryClient}>
-				<ChakraProvider theme={theme}>
-					<MainContentComponent>
-						<Component {...pageProps} key={route} />
-					</MainContentComponent>
-				</ChakraProvider>
-			</QueryClientProvider>
-		</>
+		<div className="relative">
+			{/* --------- AppLayout will be apply all related with layout and logic or init for entire app */}
+			<AppLayout ssrLoading={loading}>
+				<DefaultSeo {...SEO} />
+				<Component {...pageProps} key={router?.route} />
+			</AppLayout>
+		</div>
 	);
 }
